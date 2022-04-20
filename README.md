@@ -1,8 +1,9 @@
-## Learning Google V8
-The sole purpose of this project is to aid me in leaning Google's V8 JavaScript engine.
+## 구글 V8 엔진 공부하기
+이 프로젝트의 목적은 구글의 V8 자바스크립트 엔진 학습을 돕기 위해서다.  
+이 글의 원본은 [여기]((https://github.com/danbev/learning-v8))에서 확인할 수 있다.
 
 
-### Contents
+### 목차
 1. [Introduction](./notes/intro.md)
 1. [Address](#address)
 1. [TaggedImpl](#taggedimpl)
@@ -991,7 +992,7 @@ So at startup there is only one thread which is what we expected. Lets skip ahea
     ...
     DefaultPlatform* platform = new DefaultPlatform(idle_task_support, tracing_controller);
     platform->SetThreadPoolSize(thread_pool_size);
-
+    
     (lldb) fr v thread_pool_size
     (int) thread_pool_size = 0
 
@@ -1003,7 +1004,7 @@ Next there is a check for 0 and the number of processors -1 is used as the size 
 This is all that `SetThreadPoolSize` does. After this we have:
 
     platform->EnsureInitialized();
-
+    
     for (int i = 0; i < thread_pool_size_; ++i)
       thread_pool_.push_back(new WorkerThread(&queue_));
 
@@ -2430,7 +2431,7 @@ The following is after running the preprocessor (clang -E src/api.cc):
 I was wondering where the Utils::ToLocal was defined but could not find it until I found:
 
     MAKE_TO_LOCAL(ToLocal, String, String)
-
+    
     #define MAKE_TO_LOCAL(Name, From, To)                                       \
     Local<v8::To> Utils::Name(v8::internal::Handle<v8::internal::From> obj) {   \
       return Convert<v8::internal::From, v8::To>(obj);                          \
@@ -2523,7 +2524,7 @@ And looking a the `DECL_ACCESSOR` macro:
       inline type* name() const;          \
       inline void set_##name(type* value, \
                              WriteBarrierMode mode = UPDATE_WRITE_BARRIER);
-
+    
     inline FixedArrayBase* name() const;
     inline void set_elements(FixedArrayBase* value, WriteBarrierMode = UPDATE_WRITE_BARRIER)
 
@@ -2635,12 +2636,12 @@ The inline caching source are located in `src/ic`.
 ## --trace-ic
 
     $ out/x64.debug/d8 --trace-ic --trace-maps class.js
-
+    
     before
     [TraceMaps: Normalize from= 0x19a314288b89 to= 0x19a31428aff9 reason= NormalizeAsPrototype ]
     [TraceMaps: ReplaceDescriptors from= 0x19a31428aff9 to= 0x19a31428b051 reason= CopyAsPrototype ]
     [TraceMaps: InitialMap map= 0x19a31428afa1 SFI= 34_Person ]
-
+    
     [StoreIC in ~Person+65 at class.js:2 (0->.) map=0x19a31428afa1 0x10e68ba83361 <String[4]: name>]
     [TraceMaps: Transition from= 0x19a31428afa1 to= 0x19a31428b0a9 name= name ]
     [StoreIC in ~Person+102 at class.js:3 (0->.) map=0x19a31428b0a9 0x2beaa25abd89 <String[3]: age>]
@@ -2719,12 +2720,12 @@ bodies).
     function f1() {       <- top level code
       console.log('f1');  <- non top level
     }
-
+    
     function f2() {       <- top level code
       f1();               <- non top level
       console.logg('f2'); <- non top level
     }
-
+    
     f2();                 <- top level code
     var i = 10;           <- top level code
 
@@ -2766,17 +2767,17 @@ The bytecode becomes the source of truth instead of as before the AST.
     Source ------> Parser  --------> Ignition-codegen ---------> Bytecode ---------> Turbofan ----> Optimized Code ---+
                                                                   /\                                                  |
                                                                    +--------------------------------------------------+
-
+    
     function bajja(a, b, c) {
       var d = c - 100;
       return a + d * b;
     }
-
+    
     var result = bajja(2, 2, 150);
     print(result); 
-
+    
     $ ./d8 test.js --ignition  --print_bytecode
-
+    
     [generating bytecode for function: bajja]
     Parameter count 4
     Frame size 8
@@ -2858,7 +2859,7 @@ This will land us in `api.cc`
 
     ScriptCompiler::Source script_source(source);
     return ScriptCompiler::Compile(context, &script_source);
-
+    
     MaybeLocal<Script> ScriptCompiler::Compile(Local<Context> context, Source* source, CompileOptions options) {
     ...
     auto isolate = context->GetIsolate();
@@ -2870,9 +2871,9 @@ This will land us in `api.cc`
           str, name_obj, line_offset, column_offset, source->resource_options,
           source_map_url, isolate->native_context(), NULL, &script_data, options,
           i::NOT_NATIVES_CODE);
-
+    
     (lldb) br s -f compiler.cc -l 1259
-
+    
     LanguageMode language_mode = construct_language_mode(FLAG_use_strict);
     (lldb) p language_mode
     (v8::internal::LanguageMode) $10 = SLOPPY
@@ -2979,7 +2980,7 @@ Script is of type v8::internal::Script which can be found in src/object/script.h
 Back now in compiler.cc and the GetSharedFunctionInfoForScript function:
 
     Zone compile_zone(isolate->allocator(), ZONE_NAME);
-
+    
     ...
     if (parse_info->literal() == nullptr && !parsing::ParseProgram(parse_info, isolate))
 
@@ -3008,16 +3009,16 @@ So here we can see our JavaScript as a String.
 
     (lldb) br s -f parser.cc -l 639
     ...
-
+    
     this->scope()->SetLanguageMode(info->language_mode());
     ParseStatementList(body, Token::EOS, &ok);
 
 This call will land in parser-base.h and its `ParseStatementList` function.
 
     (lldb) br s -f parser-base.h -l 4695
-
+    
     StatementT stat = ParseStatementListItem(CHECK_OK_CUSTOM(Return, kLazyParsingComplete));
-
+    
     result = CompileToplevel(&parse_info, isolate, Handle<SharedFunctionInfo>::null());
 
 This will land in `CompileTopelevel` (in the same file which is src/compiler.cc):
@@ -3063,7 +3064,7 @@ VisitDeclarations will iterate over all the declarations in the file which in ou
 
     var user1 = new Person('Fletch');
     var user2 = new Person('Dr.Rosen');
-
+    
     (lldb) p *variable->raw_name()
     (const v8::internal::AstRawString) $33 = {
        = {
@@ -3075,7 +3076,7 @@ VisitDeclarations will iterate over all the declarations in the file which in ou
       is_one_byte_ = true
       has_string_ = false
     }
-
+    
     // Perform a stack-check before the body.
     builder()->StackCheck(info()->literal()->start_position());
 
@@ -3108,14 +3109,14 @@ This section will examine the bytecode for the following JavaScript:
       const p = new Promise((resolve, reject) => {
         resolve('ok');
       });
-
+    
       p.then(msg => {
         console.log(msg);
       });
     }
-
+    
     beve(); 
-
+    
     $ d8 --print-bytecode promise.js
 
 First have the main function which does not have a name:
@@ -3141,14 +3142,14 @@ First have the main function which does not have a name:
     141 E> 0x34423e7ac1b3 @   21 : 4f f9 03          CallUndefinedReceiver0 r1, [3]
            0x34423e7ac1b6 @   24 : 1e fa             Star r0
     148 S> 0x34423e7ac1b8 @   26 : 94                Return
-
+    
     Constant pool (size = 2)
     0x34423e7ac149: [FixedArray] in OldSpace
      - map = 0x344252182309 <Map(HOLEY_ELEMENTS)>
      - length: 2
            0: 0x34423e7ac069 <FixedArray[4]>
            1: 0x34423e7abf59 <String[4]: beve>
-
+    
     Handler Table (size = 16) Load the global with name in constant pool entry <name_index> into the
     // accumulator using FeedBackVector slot <slot> outside of a typeof
 
@@ -3298,7 +3299,7 @@ Lets take `console` as an example which was created using:
     JSObject::AddProperty(global, name, console, DONT_ENUM);
     SimpleInstallFunction(console, "debug", Builtins::kConsoleDebug, 1, false,
                           NONE);
-
+    
     V8_NOINLINE Handle<JSFunction> SimpleInstallFunction(
       Handle<JSObject> base, 
       const char* name, 
@@ -3322,7 +3323,7 @@ In `builtins.cc` we have an array of `BuiltinMetadata` which is declared as:
     const BuiltinMetadata builtin_metadata[] = {
       BUILTIN_LIST(DECL_CPP, DECL_API, DECL_TFJ, DECL_TFC, DECL_TFS, DECL_TFH, DECL_ASM)
     };
-
+    
     #define DECL_CPP(Name, ...) { #Name, Builtins::CPP, \
                                 { FUNCTION_ADDR(Builtin_##Name) }},
 
@@ -3374,7 +3375,7 @@ So backing up to looking at the arguments to SimpleInstallFunction which are:
 
     SimpleInstallFunction(console, "debug", Builtins::kConsoleDebug, 1, false,
                           NONE);
-
+    
     V8_NOINLINE Handle<JSFunction> SimpleInstallFunction(
       Handle<JSObject> base, 
       const char* name, 
@@ -3963,7 +3964,7 @@ This is the source used for the following examples:
       this.name = name;
       this.age = age;
     }
-
+    
     print("before");
     const p = new Person("Daniel", 41);
     print(p.name);
@@ -3994,7 +3995,7 @@ Next a new SourceGroup array is create:
     current->Begin(argv, 1);
     for (int i = 1; i < argc; i++) {
       const char* str = argv[i];
-
+    
     (lldb) p str
     (const char *) $6 = 0x00007fff5fbfed4d "manual.js"
 
@@ -4009,7 +4010,7 @@ TODO: I'm not exactly sure what SourceGroups are about but just noting this and 
 This will take us back `int Shell::Main` in src/d8.cc
 
     ::V8::InitializeICUDefaultLocation(argv[0], options.icu_data_file);
-
+    
     (lldb) p argv[0]
     (char *) $8 = 0x00007fff5fbfed48 "./d8"
 
@@ -4100,7 +4101,7 @@ Which will call SourceGroup::Execute(Isolate* isolate)
       exception_was_thrown = true;
       break;
     }
-
+    
     ScriptOrigin origin(name);
     if (compile_options == ScriptCompiler::kNoCompileOptions) {
       ScriptCompiler::Source script_source(source, origin);
@@ -4129,7 +4130,7 @@ src/compiler.cc
 Back in src/compiler.cc-info.cc:
 
     result = CompileToplevel(&info);
-
+    
     (lldb) job *result
     0x17df0df309f1: [SharedFunctionInfo]
      - name = 0x1a7f12d82471 <String[0]: >
@@ -4137,16 +4138,16 @@ Back in src/compiler.cc-info.cc:
      - expected_nof_properties = 10
      - ast_node_count = 23
      - instance class name = #Object
-
+    
      - code = 0x1d8484d3661 <Code: BUILTIN>
      - source code = function bajja(a, b, c) {
       var d = c - 100;
       return a + d * b;
     }
-
+    
     var result = bajja(2, 2, 150);
     print(result);
-
+    
      - anonymous expression
      - function token position = -1
      - start position = 0
@@ -4163,7 +4164,7 @@ Back in src/compiler.cc-info.cc:
      Slot #5 CALL_IC
      Slot #7 CALL_IC
      Slot #9 LOAD_GLOBAL_NOT_INSIDE_TYPEOF_IC
-
+    
      - bytecode_array = 0x17df0df30c61
 
 
@@ -4175,7 +4176,7 @@ Back in d8.cc:
 src/api.cc
 
     auto fun = i::Handle<i::JSFunction>::cast(Utils::OpenHandle(this));
-
+    
     (lldb) job *fun
     0x17df0df30e01: [Function]
      - map = 0x19cfe0003859 [FastProperties]
@@ -4194,9 +4195,9 @@ src/api.cc
         #arguments: 0x2c35a5718169 <AccessorInfo> (const accessor descriptor)
         #caller: 0x2c35a57181d9 <AccessorInfo> (const accessor descriptor)
         #prototype: 0x2c35a5718249 <AccessorInfo> (const accessor descriptor)
-
+    
       }
-
+    
     i::Handle<i::Object> receiver = isolate->global_proxy();
     Local<Value> result;
     has_pending_exception = !ToLocal<Value>(i::Execution::Call(isolate, fun, receiver, 0, nullptr), &result);
@@ -4222,9 +4223,9 @@ Taken directly from src/zone/zone.h:
 ### d8
 
     (lldb) br s -f d8.cc -l 2935
-
+    
     return v8::Shell::Main(argc, argv);
-
+    
     api.cc:6112
     i::ReadNatives();
     natives-external.cc
@@ -4236,7 +4237,7 @@ of the chars that make up the string.
 For example, a one byte char would be reinterpreted as uint8_t:
 
     const char* data
-
+    
     reinterpret_cast<const uint8_t*>(data)
 
 
@@ -4291,8 +4292,9 @@ I'm skipping TRACE_EVENT_CALL_STATS_SCOPED for now.
  
 
 
-    auto fun = i::Handle<i::JSFunction>::cast(Utils::OpenHandle(this));
 
+    auto fun = i::Handle<i::JSFunction>::cast(Utils::OpenHandle(this));
+    
     (lldb) job *fun
     0x33826912c021: [Function]
      - map = 0x1d0656c03599 [FastProperties]
@@ -4318,7 +4320,7 @@ The code for i::JSFunction is generated in src/api.h. Lets take a closer look at
     #define DECLARE_OPEN_HANDLE(From, To) \
       static inline v8::internal::Handle<v8::internal::To> \
       OpenHandle(const From* that, bool allow_empty_handle = false);
-
+    
     OPEN_HANDLE_LIST(DECLARE_OPEN_HANDLE)
 
 OPEN_HANDLE_LIST looks like this:
@@ -4395,7 +4397,7 @@ To find suitable task you can use `label:HelpWanted` at [bugs.chromium.org](http
 What does this call do: 
 
     Utils::OpenHandle(*(source->source_string));
-
+    
     OPEN_HANDLE_LIST(MAKE_OPEN_HANDLE)
 
 Which is a macro defined in src/api.h:
@@ -4409,7 +4411,7 @@ Which is a macro defined in src/api.h:
       return v8::internal::Handle<v8::internal::To>(                             \
           reinterpret_cast<v8::internal::To**>(const_cast<v8::From*>(that)));    \
     }
-
+    
     OPEN_HANDLE_LIST(MAKE_OPEN_HANDLE)
 
 If we take a closer look at the macro is should expand to something like this in our case:
@@ -5972,7 +5974,7 @@ And Heap::set_builtin does:
 }
 ```
 So this is how the builtins_table is populated.
- 
+
 And when is `SetupBuiltinsInternal` called?  
 It is called from `SetupIsolateDelegat::SetupBuiltins` which is called from Isolate::Init.
 
@@ -6549,7 +6551,7 @@ V8_WARN_UNUSED_RESULT Address Builtin_HandleApiCall(
                                             fun_data, receiver, args));            
     }
   }
-``` 
+```
 The `BUILTIN` macro can be found in `src/builtins/builtins-utils.h`:
 ```c++
 #define BUILTIN(name)                                                       \
@@ -8040,5 +8042,4 @@ But I can't find any usages of this enum?
 When you see something like [[Notation]] you can think of this as a field in
 an object that is not exposed to JavaScript user code but internal to the JavaScript
 engine. These can also be used for internal methods.
-
 
