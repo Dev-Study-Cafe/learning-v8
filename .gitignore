@@ -53,3 +53,6 @@ src/backing-store-org
 src/backing-store-new
 src/fast_api_test
 test/heapsnapshot_test
+
+# MAC
+.DS_Store
