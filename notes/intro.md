@@ -1,8 +1,8 @@
-## Introduction
-V8 basically consists of the memory management of the heap and the execution
-stack (very simplified but helps make my point). Things like the callback queue,
-the event loop and other things like the WebAPIs (DOM, ajax, setTimeout etc) are
-found inside Chrome or in the case of Node the APIs are Node.js APIs:
+## 소개
+
+V8은 기본적으로 힙의 메모리 관리와 콜 스택(실행 스택)으로 구성된다. (매우 간단하지만 요점을 설명하는 데 도움이 된다).  
+콜백 큐, 이벤트 루프 그리고 크롬에서는 WebAPIs (DOM, ajax, setTiimeout 등), 노드에서는 Node.js APIs도 있다.
+
 ```
 +------------------------------------------------------------------------------------------+
 | Google Chrome                                                                            |
@@ -33,45 +33,38 @@ found inside Chrome or in the case of Node the APIs are Node.js APIs:
 |                                                                                          |
 +------------------------------------------------------------------------------------------+
 ```
-The execution stack is a stack of frame pointers. For each function called, that
-function will be pushed onto the stack. When that function returns it will be
-removed. If that function calls other functions they will be pushed onto the
-stack. When they have all returned execution can proceed from the returned to 
-point. If one of the functions performs an operation that takes time progress
-will not be made until it completes as the only way to complete is that the
-function returns and is popped off the stack. This is what happens when you have
-a single threaded programming language.
 
-So that describes synchronous functions, what about asynchronous functions?  
-Lets take for example that you call setTimeout, the setTimeout function will be
-pushed onto the call stack and executed. This is where the callback queue comes
-into play and the event loop. The setTimeout function can add functions to the
-callback queue. This queue will be processed by the event loop when the call
-stack is empty.
+콜 스택은 프레임 포인터의 스택이다.  
+호출된 함수는 스택에 쌓인다.  
+함수가 반환될 때, 스택에 저장된 해당 함수와 관련된 값들이 삭제된다.  
+함수가 내부에서 다른 함수를 호출한다면, 그것 또한 스택에 쌓인다.  
+내부 함수가 모두 반환되어야 해당 지점부터 실행이 계속 진행된다.  
+함수 중 하나가 시간이 소요되는 작업을 수행한다면, 해당 함수가 반환되고 스택에서 삭제되기 전까지 이후 작업은 진행되지 않는다.  
+이것이 싱글 스레드 프로그래밍 언어의 특징이다.
 
-### Task
-A task is a function that can be scheduled by placing the task on the callback
-queue. This is done by WebAPIs like `setTimeout` and `setInterval`.
-When the event loop starts executing tasks it will run all the tasks that
-are currently in the task queue. Any new tasks that get scheduled by WebAPI
-function calls are only pushed onto the queue but will not be executed until
-the next iteration of the event loop.
+그렇다면 비동기적 함수는 어떨까?  
+네가 setTimeout을 호출한다고 가정해보자.  
+setTimeout 함수는 콜스택에 쌓이고 실행된다.  
+여기서 콜백 큐가 작동하고 이벤트 루프가 발생한다.  
+setTimeout 함수는 콜백 큐에 함수들을 추가할 수 있다.  
+이 큐는 콜 스택이 빌 때까지 이벤트 루프에 의해 진행된다.
 
-When the execution stack is empty all the tasks in the microtask queue will be
-run, and if any of these tasks add tasks to the microtask queue that will also
-be run which is different compared with how the task queue handles this situation.
+### 작업(태스크)
 
-In Node.js `setTimeout` and `setInterval`...
+태스크는 콜백 큐에 그 작업을 배치함으로써 실행을 예약할 수 있다.  
+`setTimeout`, `setInterval`과 같은 WebAPIs가 있다.  
+이벤트 루프가 실행 태스크를 시작할 때, 현재 태스크 큐에 있는 모든 작업을 실행한다.  
+WebAPI 함수 호출에 의해 예정된 새로운 태스크가 있다고 하더라도, 태스크 큐에 쌓이기만 하고 이벤트 루프의 다음 순회 전까지 실행되지 않는다.
 
+실행 스택이 비었을 때 마이크로태스크 큐에 있는 모든 태스크가 동작하고, 이러한 태스크 중 하나가 실행될 마이크로태스크 큐에 태스크를 추가하는 경우 태스크 큐가 처리하는 방식과 다르게 동작한다.
 
-### Micro task
-Is a function that is executed after current function has run after all the
-other functions that are currently on the call stack.
+### 마이크로태스크
 
-Microtasks internals info can be found in [microtasks](./microtasks.md).
+마이크로태스크는 현재 콜스택에 있는 다른 모든 함수들이 실행된 후에 실행되는 현재 함수도 끝난 뒤 실행된다.  
+마이크로태스크 내부 정보는 [여기](./microtasks.md)서 확인할 수 있다.
 
+#### 마이크로태스크 큐
 
-#### Microtask queue
-When a promise is created it will execute right away and if it has been resovled
-you can call `then` on it.
+프로미스가 생성될 때, 그 프로미스는 바로 실행되고 만약 resolve 되었다면 `then`을 호출할 수 있다.
 
+> `then`은 프로미스의 실행이 성공적으로 종료되었을 때, 해당 프로미스의 동작 이후에 진행될 다음 작업을 지정할 때 사용한다.
