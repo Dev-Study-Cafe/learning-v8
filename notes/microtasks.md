@@ -7,7 +7,7 @@
 [소개](./intro.md) 글에서 다루었듯이, 태스크는 작업/콜백 큐에 적재되고 런타임에 의해 콜백 큐에서 실행 스택으로 옮겨진다.  
 타이머가 만료되면 콜백 큐에 실행될 함수(태스크)를 적재하는 `setTimeout`를 호출하는 경우를 예로 들 수 있다.
 
-node.js를 사용한 구체적인 예시를 보자.
+node.js를 사용한 [구체적인 예시](../lib/task.js)를 보자.
 
 ```console
 $ env NODE_DEBUG=timer node lib/task.js 
